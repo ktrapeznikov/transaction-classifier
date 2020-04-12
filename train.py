@@ -8,10 +8,11 @@ from shutil import copyfile
 
 logger = getLogger(__name__)
 
+device = "cuda" if torch.cuda.is_available() else "cpu"
+
 
 def train():
-    hparams = Namespace(dataset="training_dataset.pkl",
-                        gpus=None,
+    hparams = Namespace(gpus=1 if device == "cude" else None,
                         dropout_rate=.2,
                         hidden_dim=32,
                         batch_size=256,
@@ -21,12 +22,10 @@ def train():
                         progress_bar_refresh_rate=1,
                         best_model_path="model.ckpt")
 
-    device = "cuda" if hparams.gpus is not None else "cpu"
-
     data = read_and_process_data("transactions_training_data.csv", after='2017-07-01')
     train_tokenizer(data)
     features_ids = compute_features(data)
-    dataset = prepair_training_dataset(features_ids, data, save_file=hparams.dataset)
+    dataset = prepair_training_dataset(features_ids, data)
 
     model = TransClassifier(hparams)
     trainer = pl.Trainer(max_epochs=hparams.max_epochs,

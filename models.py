@@ -49,7 +49,7 @@ def read_and_process_data(file_name, before='2030-01-01', after='2000-01-01'):
 
 
 def train_tokenizer(data, model_path="vocab.model", vocab_size=1000):
-    train_data_path = "train_data.txt"
+    train_data_path = "temp_train_data.txt"
     open(train_data_path, "w").write("\n".join(data.feature_string.values))
     yttm.BPE.train(data=train_data_path, vocab_size=vocab_size, model=model_path)
 
@@ -61,7 +61,7 @@ def compute_features(data, model_path="vocab.model", max_len=20):
     return np.array(features_ids)
 
 
-def prepair_training_dataset(features_ids, data, save_file="training_dataset.pkl"):
+def prepair_training_dataset(features_ids, data, save_file="temp_training_dataset.pkl"):
     x_s = features_ids
     x_f = data["Amount"].values.reshape(-1, 1)
     y = data["label"].values
@@ -78,7 +78,6 @@ def prepair_training_dataset(features_ids, data, save_file="training_dataset.pkl
     return dataset
 
 
-
 def acc(y, logits):
     yhat = logits.argmax(dim=1)
     return (1.0 * (yhat == y)).mean()
@@ -92,7 +91,7 @@ class TransClassifier(pl.LightningModule):
                        "seq_type": "cnn",
                        "cont_dim": 1,
                        "kernel_size": 3,
-                       "dataset": None}
+                       "dataset": "temp_training_dataset.pkl"}
 
     def __init__(self, hparams: Namespace = None):
 
@@ -116,7 +115,7 @@ class TransClassifier(pl.LightningModule):
             hparams.seq_encoder = None
 
         self.cont_lin = torch.nn.Linear(hparams.cont_dim, hparams.cont_dim)
-        self.cls = torch.nn.Linear(hparams.hidden_dim+hparams.cont_dim, 2)
+        self.cls = torch.nn.Linear(hparams.hidden_dim + hparams.cont_dim, 2)
         self.drop = torch.nn.Dropout(hparams.dropout_rate)
 
         self.dataset = None
@@ -218,5 +217,3 @@ class TransClassifier(pl.LightningModule):
 
     def val_dataloader(self):
         return DataLoader(self.dataset_val, batch_size=self.hparams.batch_size, shuffle=False)
-
-
