@@ -11,6 +11,8 @@ import pytorch_lightning as pl
 from torch.utils.data import DataLoader, random_split, TensorDataset
 from collections import defaultdict
 import logging
+device = "cuda" if torch.cuda.is_available() else "cpu"
+
 
 logger = logging.getLogger()
 
@@ -40,8 +42,8 @@ def read_and_process_data(file_name, before='2030-01-01', after='2000-01-01'):
 
     data["label"] = ~data.Labels.isna()
     data["feature_float"] = data.Amount
-    data["weights"] = np.ones_like(data.Amount)
-    # data["weights"] = data.Amount/ data.Amount.mean()
+    # data["weights"] = np.ones_like(data.Amount)
+    data["weights"] = np.log(1.+data.Amount)# / data.Amount.mean()
 
     logger.info(data["label"].mean())
 
@@ -135,8 +137,8 @@ class TransClassifier(pl.LightningModule):
         else:
             hparams.seq_encoder = None
 
-        self.cont_lin = torch.nn.Linear(hparams.cont_dim, hparams.cont_dim)
-        self.cls = torch.nn.Linear(hparams.hidden_dim + hparams.cont_dim, 2)
+        self.cont_lin = torch.nn.Linear(hparams.cont_dim, 10*hparams.cont_dim)
+        self.cls = torch.nn.Linear(hparams.hidden_dim + 10*hparams.cont_dim, 2)
         self.drop = torch.nn.Dropout(hparams.dropout_rate)
 
         self.dataset = None
