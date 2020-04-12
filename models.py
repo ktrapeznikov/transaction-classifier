@@ -78,6 +78,27 @@ def prepair_training_dataset(features_ids, data, save_file="temp_training_datase
     return dataset
 
 
+def inspect(model_path, dataset, data):
+    model = TransClassifier.load_from_checkpoint(model_path)
+    # check how model did
+    with torch.no_grad():
+        x_s, x_f, y, w = dataset.tensors
+        out = model(x_s.to(device), x_f.to(device))
+        probs = out[0].softmax(dim=1)[:, 1].cpu().numpy()
+    wrong = ((probs > .5) != data.label.values)
+    logger.info(f"mean error {wrong.mean()}")
+    data["probs"] = probs
+    data["wrong"] = wrong
+    logger.info("top false positives")
+    s = data.query("wrong").sort_values("probs").tail(20).loc[:,
+        ["Date", "Original Description", "Labels", "Amount", "probs"]]
+    logger.info(f"\n{s}")
+    logger.info("top false negatives")
+    s = data.query("wrong").sort_values("probs").head(20).loc[:,
+        ["Date", "Original Description", "Labels", "Amount", "probs"]]
+    logger.info(f"\n{s}")
+
+
 def acc(y, logits):
     yhat = logits.argmax(dim=1)
     return (1.0 * (yhat == y)).mean()
@@ -125,9 +146,9 @@ class TransClassifier(pl.LightningModule):
     def check_hparams(self, hparams):
         temp = self.default_hparams.copy()
         hparams_dict = vars(hparams)
-        for k, v in hparams_dict.items():
-            if k not in temp:
-                logger.warning(f"unknown {k} in hparams")
+        # for k, v in hparams_dict.items():
+        #     if k not in temp:
+        #         logger.warning(f"unknown {k} in hparams")
 
         temp.update(hparams_dict)
         return Namespace(**temp)
