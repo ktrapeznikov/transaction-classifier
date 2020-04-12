@@ -30,20 +30,6 @@ data.head()
 
 
 
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -146,7 +132,7 @@ data.head()
     </tr>
   </tbody>
 </table>
-</div>
+
 
 
 
@@ -160,20 +146,6 @@ data.loc[:,["feature_string","feature_float","label"]].head(5)
 
 
 
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -216,7 +188,7 @@ data.loc[:,["feature_string","feature_float","label"]].head(5)
     </tr>
   </tbody>
 </table>
-</div>
+
 
 
 
@@ -310,7 +282,7 @@ Let's see what our model got wront
 
 ```python
 model = TransClassifier.load_from_checkpoint(trainer.checkpoint_callback.kth_best_model)
-    # check how model did
+    _# check how model did_
 with torch.no_grad():
     x_s, x_f, y, w = dataset.tensors
     out = model(x_s.to(device), x_f.to(device))
@@ -339,20 +311,7 @@ data.query("wrong").sort_values("probs").tail().loc[:,["Date", "Original Descrip
 
 
 
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -407,7 +366,7 @@ data.query("wrong").sort_values("probs").tail().loc[:,["Date", "Original Descrip
     </tr>
   </tbody>
 </table>
-</div>
+
 
 
 
@@ -421,20 +380,7 @@ data.query("wrong").sort_values("probs").head().loc[:,["Date", "Original Descrip
 
 
 
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -489,6 +435,6 @@ data.query("wrong").sort_values("probs").head().loc[:,["Date", "Original Descrip
     </tr>
   </tbody>
 </table>
-</div>
+
 
 
